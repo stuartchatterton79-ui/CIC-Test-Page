@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Event Guest Page</title>
+  <style>
+    :root { --brand:#0056b3; --accent:#00a3a3; --bg:#0f172a; --text:#f8fafc; }
+    body {font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,sans-serif; margin:0; background:linear-gradient(135deg,var(--bg),#1f2937); color:var(--text);} 
+    .wrap {max-width:720px; margin:0 auto; padding:40px 24px;} 
+    h1 {font-size:1.8rem; margin:0 0 8px;}
+    .sub {opacity:.8; margin:0 0 24px;}
+    .card {background:#111827cc; backdrop-filter:saturate(180%) blur(4px); border:1px solid #334155; border-radius:16px; padding:24px;}
+    .btns {display:grid; grid-template-columns:1fr; gap:14px;}
+    a.button {display:flex; align-items:center; gap:12px; justify-content:center; text-decoration:none; font-weight:600; padding:14px 16px; border-radius:12px; color:#fff; transition:transform .08s ease, box-shadow .12s ease;}
+    a.button:hover {transform:translateY(-1px); box-shadow:0 8px 16px #0005;}
+    .menu {background:linear-gradient(135deg,var(--accent),#10b981);} 
+    .chatA {background:linear-gradient(135deg,var(--brand),#6366f1);} 
+    .chatB {background:linear-gradient(135deg,#b0005a,#ff6b6b);} 
+    .foot {margin-top:24px; font-size:.9rem; opacity:.85}
+    .qr {display:flex; align-items:center; gap:16px; margin-top:16px;}
+    code {background:#0b1220; padding:2px 6px; border-radius:6px;}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Welcome  Event Guest Page</h1>
+    <p class="sub">Use the buttons below. Chats open in Microsoft Teams with a clear title so recipients know this came from the event QR page.</p>
+
+    <section class="card">
+      <div class="btns">
+        <!-- Button 1: Menu ordering site -->
+        <a id="menuBtn" class="button menu" href="#" target="_blank" rel="noopener">
+          374 Order from the Menu
+        </a>
+
+        <!-- Button 2: Start a group chat with List A -->
+        <a id="chatABtn" class="button chatA" href="#" target="_blank" rel="noopener">
+          4AC Message Hosts (Group A)
+        </a>
+
+        <!-- Button 3: Start a group chat with List B -->
+        <a id="chatBBtn" class="button chatB" href="#" target="_blank" rel="noopener">
+          4AC Message Hosts (Group B)
+        </a>
+      </div>
+      <div class="foot">
+        <p>
+          Tip: add a <code>?ref=Table-12</code> to this page URL when generating the QR. We'll append it to the chat title automatically.
+        </p>
+        <div class="qr">
+          <div>
+            <div>QR for this page (replace <code>PAGE_URL</code> once hosted):</div>
+            <img id="qrImg" alt="QR code" src="https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=PAGE_URL" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="foot">
+      <p><strong>Note:</strong> Teams opens the chat in <em>draft</em> until you send the first message. The custom title appears when there are 	3	 or more participants (you + at least two recipients).</p>
+    </section>
+  </main>
+
+  <script>
+    // --- CONFIGURE THESE VALUES ---
+    const MENU_URL = 'https://example.com/menu';
+    const TENANT_ID = ''; // optional, e.g. '72f988bf-86f1-41af-91ab-2d7cd011db47'
+    const RECIPIENTS_A = [
+      'first.host@example.com',
+      'second.host@example.com'
+    ];
+    const RECIPIENTS_B = [
+      'alt.host1@example.com',
+      'alt.host2@example.com'
+    ];
+    const CHAT_TITLE_A = 'Event Support 3AD';
+    const CHAT_TITLE_B = 'Venue Operations 3E2';
+    const PREFILLED_MSG = 'Hi team this chat was started from the guest QR landing page.';
+    const MENU_LABEL = 'Order from the Menu';
+
+    // --- DO NOT EDIT BELOW ---
+    const qp = new URLSearchParams(window.location.search);
+    const ref = qp.get('ref');
+    const addRef = t => ref ? `${t} 517 ${ref}` : t;
+
+    // Build deep links (see Microsoft Learn: l/chat format)
+    const base = 'https://teams.microsoft.com/l/chat/0/0';
+    function buildChatLink(emails, title) {
+      const params = new URLSearchParams();
+      params.set('users', emails.join(','));
+      params.set('topicName', addRef(title));
+      params.set('message', PREFILLED_MSG);
+      if (TENANT_ID) params.set('tenantId', TENANT_ID);
+      return `${base}?${params.toString()}`;
+    }
+
+    // Wire up buttons
+    const menuBtn = document.getElementById('menuBtn');
+    const chatABtn = document.getElementById('chatABtn');
+    const chatBBtn = document.getElementById('chatBBtn');
+
+    menuBtn.href = MENU_URL;
+    menuBtn.textContent = `374 ${MENU_LABEL}`;
+    chatABtn.href = buildChatLink(RECIPIENTS_A, CHAT_TITLE_A);
+    chatBBtn.href = buildChatLink(RECIPIENTS_B, CHAT_TITLE_B);
+
+    // Update QR image once hosted
+    const qr = document.getElementById('qrImg');
+    try {
+      const here = window.location.href;
+      if (!here.includes('file://') && !here.includes('PAGE_URL')) {
+        const api = 'https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=' + encodeURIComponent(here);
+        qr.src = api;
+      }
+    } catch (e) {}
+  </script>
+</body>
+</html>
